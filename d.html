@@ -1,88 +1,97 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>我ㄉ網站</title>
-    <link rel="icon" href="icon.PNG">
-  </head>
-  import React, { useEffect, useRef, useState } from "react";
-className="absolute bg-white/30"
-style={{
-left: p2.attackBox.offsetX,
-top: p2.attackBox.offsetY,
-width: p2.attackBox.width,
-height: p2.attackBox.height,
-}}
-/>
-)}
-</div>
+<!DOCTYPE html>
+if (player1Loaded && !player1Broken && player1Img.complete && player1Img.naturalWidth !== 0) {
+ctx.drawImage(player1Img, player1.x, player1.y, player1.w, player1.h);
+} else {
+drawPlaceholder(player1);
+}
 
 
-{/* UI overlays */}
-<div className="absolute left-4 top-4 w-[230px]">
-<div className="text-white text-sm mb-2">Player 1</div>
-<div className="w-full bg-black/30 rounded h-4 overflow-hidden">
-<div
-className="h-full bg-blue-400 transition-all"
-style={{ width: `${p1.health}%` }}
-/>
-</div>
-</div>
+if (player2Loaded && !player2Broken && player2Img.complete && player2Img.naturalWidth !== 0) {
+ctx.drawImage(player2Img, player2.x, player2.y, player2.w, player2.h);
+} else {
+drawPlaceholder(player2);
+}
 
 
-<div className="absolute right-4 top-4 w-[230px] text-right">
-<div className="text-white text-sm mb-2">Player 2</div>
-<div className="w-full bg-black/30 rounded h-4 overflow-hidden">
-<div
-className="h-full bg-red-400 transition-all"
-style={{ width: `${p2.health}%` }}
-/>
-</div>
-</div>
+// Attack handling
+if (player1.attacking) {
+drawAttack(player1, player1.facing);
+player1.attackFrame++;
+if (player1.attackFrame > 30) {
+player1.attacking = false;
+player1.attackFrame = 0;
+player2._wasHit = false; // reset hit flag
+}
+}
 
 
-{/* controls hint */}
-<div className="absolute left-4 bottom-8 text-white text-xs">
-<div>Controls:</div>
-<div>Player1 — A/D: 左右, W: 跳, S: 攻擊</div>
-<div>Player2 — ←/→: 左右, ↑: 跳, ↓: 攻擊</div>
-</div>
+if (player2.attacking) {
+drawSwordAttack(player2); // 改成劍砍擊動畫
+player2.attackFrame++;
+if (player2.attackFrame > 20) {
+player2.attacking = false;
+player2.attackFrame = 0;
+player1._wasHit = false;
+}
+}
 
 
-{/* winner overlay */}
-{winner && (
-<div className="absolute inset-0 flex items-center justify-center">
-<div className="bg-black/60 text-white p-6 rounded-lg text-center">
-<div className="text-3xl font-bold mb-2">{winner} 勝利!</div>
-<div className="mb-4">按「重置」開始新一局。</div>
-<button onClick={reset} className="px-4 py-2 bg-white/10 rounded-md">
-再來一局
-</button>
-</div>
-</div>
-)}
-</div>
+// draw simple HP bars
+drawHpBar(player1, 20, 20);
+drawHpBar(player2, canvas.width - 220, 20);
 
 
-{/* small settings / debug */}
-<div className="mt-3 text-gray-300 text-sm">
-這是基礎原型：碰撞與攻擊非常簡化，適合用來快速擴充（連擊、投擲、技能、動畫等）。
-</div>
-</div>
+rafId = requestAnimationFrame(loop);
+}
+rafId = requestAnimationFrame(loop);
+}
 
 
-<div className="mt-4 text-gray-400 text-sm">
-想要下一步我可以：
-<ul className="list-disc ml-6">
-<li>加入攻擊命中擊退/硬直與連段判定</li>
-<li>加入動畫（sprites 或 Lottie）與音效</li>
-<li>改成多人網絡對戰（WebSocket）</li>
-<li>將角色數據與技能改為 JSON 配置，方便擴充</li>
-</ul>
-</div>
-</div>
-</div>
-);
-}  
+function drawHpBar(player, x, y) {
+const barW = 200;
+ctx.fillStyle = '#000';
+ctx.fillRect(x, y, barW, 18);
+ctx.fillStyle = player.color === 'red' ? '#3b82f6' : '#ef4444';
+const pct = Math.max(0, player.hp) / 200;
+ctx.fillRect(x, y, barW * pct, 18);
+ctx.strokeStyle = '#fff';
+ctx.strokeRect(x, y, barW, 18);
+ctx.fillStyle = '#fff';
+ctx.font = '12px sans-serif';
+ctx.fillText((player === player1 ? 'Player1' : 'Player2') + ' HP: ' + player.hp, x + 6, y + 14);
+}
+
+
+// If both images already loaded synchronously (browser cache), checkStart will have started loop.
+// Otherwise it will start when onload/onerror handlers call checkStart.
+
+
+// --- INPUT ---
+document.addEventListener('keydown', e => {
+if (e.key === 'f') { // player1 attack
+if (!player1.attacking) {
+player1.attacking = true;
+player1.attackFrame = 0;
+}
+}
+if (e.key === '/' || e.key === 'j' || e.key === 'J') { // player2 attack (supports / or J)
+if (!player2.attacking) {
+player2.attacking = true;
+player2.attackFrame = 0;
+}
+}
+
+
+// simple movement for demo (optional)
+if (e.key === 'a') player1.x -= 10;
+if (e.key === 'd') player1.x += 10;
+if (e.key === 'ArrowLeft') player2.x -= 10;
+if (e.key === 'ArrowRight') player2.x += 10;
+});
+
+
+// expose a quick API in console for testing
+window._dbg = { player1Img, player2Img, player1, player2 };
+</script>
 </body>
- </html>
+</html>
