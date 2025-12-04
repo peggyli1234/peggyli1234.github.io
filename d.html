@@ -1,0 +1,79 @@
+import React, { useEffect, useRef, useState } from "react";
+className="absolute bg-white/30"
+style={{
+left: p2.attackBox.offsetX,
+top: p2.attackBox.offsetY,
+width: p2.attackBox.width,
+height: p2.attackBox.height,
+}}
+/>
+)}
+</div>
+
+
+{/* UI overlays */}
+<div className="absolute left-4 top-4 w-[230px]">
+<div className="text-white text-sm mb-2">Player 1</div>
+<div className="w-full bg-black/30 rounded h-4 overflow-hidden">
+<div
+className="h-full bg-blue-400 transition-all"
+style={{ width: `${p1.health}%` }}
+/>
+</div>
+</div>
+
+
+<div className="absolute right-4 top-4 w-[230px] text-right">
+<div className="text-white text-sm mb-2">Player 2</div>
+<div className="w-full bg-black/30 rounded h-4 overflow-hidden">
+<div
+className="h-full bg-red-400 transition-all"
+style={{ width: `${p2.health}%` }}
+/>
+</div>
+</div>
+
+
+{/* controls hint */}
+<div className="absolute left-4 bottom-8 text-white text-xs">
+<div>Controls:</div>
+<div>Player1 — A/D: 左右, W: 跳, S: 攻擊</div>
+<div>Player2 — ←/→: 左右, ↑: 跳, ↓: 攻擊</div>
+</div>
+
+
+{/* winner overlay */}
+{winner && (
+<div className="absolute inset-0 flex items-center justify-center">
+<div className="bg-black/60 text-white p-6 rounded-lg text-center">
+<div className="text-3xl font-bold mb-2">{winner} 勝利!</div>
+<div className="mb-4">按「重置」開始新一局。</div>
+<button onClick={reset} className="px-4 py-2 bg-white/10 rounded-md">
+再來一局
+</button>
+</div>
+</div>
+)}
+</div>
+
+
+{/* small settings / debug */}
+<div className="mt-3 text-gray-300 text-sm">
+這是基礎原型：碰撞與攻擊非常簡化，適合用來快速擴充（連擊、投擲、技能、動畫等）。
+</div>
+</div>
+
+
+<div className="mt-4 text-gray-400 text-sm">
+想要下一步我可以：
+<ul className="list-disc ml-6">
+<li>加入攻擊命中擊退/硬直與連段判定</li>
+<li>加入動畫（sprites 或 Lottie）與音效</li>
+<li>改成多人網絡對戰（WebSocket）</li>
+<li>將角色數據與技能改為 JSON 配置，方便擴充</li>
+</ul>
+</div>
+</div>
+</div>
+);
+}
