@@ -8,90 +8,140 @@
     body {
       font-family: "Yu Gothic", "Microsoft JhengHei", sans-serif;
       background-color: #fff8f0;
-      text-align: center;
       margin: 0;
       padding: 0;
+      text-align: center;
       color: #333;
     }
     h1 {
       color: #b71c1c;
-      margin-top: 30px;
+      margin-top: 20px;
+      font-weight: 700;
     }
     .theme-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       margin: 20px;
+      position: relative;
+      z-index: 1;
     }
     .theme {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.9);
       border: 2px solid #b71c1c;
       border-radius: 10px;
-      padding: 10px 20px;
+      padding: 15px 20px;
       margin: 10px;
       cursor: pointer;
       transition: transform 0.2s;
+      font-weight: 600;
     }
     .theme:hover {
       transform: scale(1.1);
     }
+    .description {
+      font-size: 14px;
+      margin-top: 5px;
+      color: #5d4037;
+    }
     .draw-container {
       margin-top: 40px;
+      position: relative;
+    }
+    .omikuji-cup {
+      width: 100px;
+      margin: 0 auto;
+      cursor: pointer;
     }
     .omikuji {
-      width: 200px;
+      width: 100px;
       height: 50px;
       line-height: 50px;
       margin: 20px auto;
+      font-size: 22px;
+      font-weight: 700;
+      color: #b71c1c;
+      background-color: #fff;
       border: 2px solid #b71c1c;
       border-radius: 10px;
-      font-size: 24px;
-      background-color: #fff;
-      transform-origin: center;
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
     }
-    .shake {
-      animation: shake 0.5s;
-    }
-    @keyframes shake {
-      0% { transform: rotate(0deg); }
-      25% { transform: rotate(15deg); }
-      50% { transform: rotate(-15deg); }
-      75% { transform: rotate(10deg); }
-      100% { transform: rotate(0deg); }
+    @keyframes drop {
+      0% { top: -100px; opacity: 0; }
+      50% { opacity: 1; }
+      100% { top: 100px; opacity: 1; }
     }
     .result {
-      margin-top: 20px;
+      margin-top: 160px;
       font-size: 18px;
-      padding: 10px;
+      padding: 15px;
       border: 1px solid #b71c1c;
       border-radius: 10px;
       background-color: #fff3e0;
       max-width: 80%;
       margin-left: auto;
       margin-right: auto;
+      font-weight: 600;
     }
+    /* 神社背景元素 */
+    .shrine {
+      position: absolute;
+      width: 100%;
+      height: 200px;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      background: url('https://i.imgur.com/tfKcbzK.png') no-repeat center top; 
+      background-size: contain;
+    }
+    .sakura-left, .sakura-right {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      top: 50px;
+      z-index: 0;
+      background-size: contain;
+    }
+    .sakura-left { left: 10px; background-image: url('https://i.imgur.com/U3xvH6f.png'); }
+    .sakura-right { right: 10px; background-image: url('https://i.imgur.com/U3xvH6f.png'); }
   </style>
 </head>
 <body>
 
   <h1>御神籤占卜</h1>
-  <p>請選擇占卜主題：</p>
 
-  <div class="theme-container" id="themeContainer">
-    <!-- 主題按鈕會由 JS 生成 -->
-  </div>
+  <!-- 神社裝飾 -->
+  <div class="shrine"></div>
+  <div class="sakura-left"></div>
+  <div class="sakura-right"></div>
+
+  <div class="theme-container" id="themeContainer"></div>
 
   <div class="draw-container" id="drawContainer" style="display:none;">
-    <div class="omikuji" id="omikuji">搖一搖抽籤</div>
+    <img src="https://i.imgur.com/qlZK0rR.png" class="omikuji-cup" id="omikujiCup" alt="籤筒">
+    <div class="omikuji" id="omikuji"></div>
     <div class="result" id="result"></div>
-    <button onclick="reset()">重新選主題</button>
   </div>
 
   <script>
     const themes = [
-      "願望", "戀愛", "待人", "走人", "縁談", 
-      "商売", "失物", "住居", "旅立", "健康", 
-      "學問", "爭事", "抱人"
+      {name:"願望", desc:"自己祈願的事情能否實現"},
+      {name:"戀愛", desc:"單相思或兩情相悅的戀愛前景"},
+      {name:"待人", desc:"影響自身命運的關鍵人物是否出現"},
+      {name:"走人", desc:"有人是否會離開你身邊"},
+      {name:"縁談", desc:"和婚姻有關的良緣是否出現"},
+      {name:"商売", desc:"關於工作的運勢"},
+      {name:"失物", desc:"正在找尋的物品或事情能否找到"},
+      {name:"住居", desc:"搬家或新家相關運氣"},
+      {name:"旅立", desc:"出行或旅行相關的運勢"},
+      {name:"健康", desc:"身體健康及痊癒時間"},
+      {name:"學問", desc:"考試與學習運勢"},
+      {name:"爭事", desc:"官司或比賽等競爭運勢"},
+      {name:"抱人", desc:"雇員相關的運勢"}
     ];
 
     const omikujiResults = [
@@ -106,6 +156,7 @@
 
     const themeContainer = document.getElementById('themeContainer');
     const drawContainer = document.getElementById('drawContainer');
+    const omikujiCup = document.getElementById('omikujiCup');
     const omikuji = document.getElementById('omikuji');
     const resultDiv = document.getElementById('result');
 
@@ -113,7 +164,7 @@
     themes.forEach(theme => {
       const btn = document.createElement('div');
       btn.classList.add('theme');
-      btn.textContent = theme;
+      btn.innerHTML = `<strong>${theme.name}</strong><div class="description">${theme.desc}</div>`;
       btn.onclick = () => selectTheme(theme);
       themeContainer.appendChild(btn);
     });
@@ -121,25 +172,22 @@
     function selectTheme(theme) {
       themeContainer.style.display = 'none';
       drawContainer.style.display = 'block';
-      omikuji.textContent = `${theme}：搖一搖抽籤`;
-      resultDiv.textContent = '';
-      omikuji.onclick = () => drawOmikuji();
+      omikuji.textContent = "";
+      resultDiv.textContent = "";
+      omikuji.style.top = "-100px";
+      omikuji.style.opacity = 0;
+
+      omikujiCup.onclick = () => drawOmikuji(theme.name);
     }
 
-    function drawOmikuji() {
-      omikuji.classList.add('shake');
+    function drawOmikuji(themeName) {
+      omikuji.style.animation = "drop 1s forwards";
       setTimeout(() => {
-        omikuji.classList.remove('shake');
         const rand = Math.floor(Math.random() * omikujiResults.length);
         const res = omikujiResults[rand];
-        omikuji.textContent = res.name;
-        resultDiv.textContent = res.desc;
-      }, 500);
-    }
-
-    function reset() {
-      drawContainer.style.display = 'none';
-      themeContainer.style.display = 'flex';
+        omikuji.textContent = `${res.name}`;
+        resultDiv.innerHTML = `<strong>${themeName}</strong>：${res.desc}`;
+      }, 1000);
     }
   </script>
 
