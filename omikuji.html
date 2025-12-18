@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>御神籤占卜</title>
+  <style>
+    body {
+      font-family: "Yu Gothic", "Microsoft JhengHei", sans-serif;
+      background-color: #fff8f0;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    h1 {
+      color: #b71c1c;
+      margin-top: 30px;
+    }
+    .theme-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px;
+    }
+    .theme {
+      background-color: #fff;
+      border: 2px solid #b71c1c;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .theme:hover {
+      transform: scale(1.1);
+    }
+    .draw-container {
+      margin-top: 40px;
+    }
+    .omikuji {
+      width: 200px;
+      height: 50px;
+      line-height: 50px;
+      margin: 20px auto;
+      border: 2px solid #b71c1c;
+      border-radius: 10px;
+      font-size: 24px;
+      background-color: #fff;
+      transform-origin: center;
+    }
+    .shake {
+      animation: shake 0.5s;
+    }
+    @keyframes shake {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(15deg); }
+      50% { transform: rotate(-15deg); }
+      75% { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 10px;
+      border: 1px solid #b71c1c;
+      border-radius: 10px;
+      background-color: #fff3e0;
+      max-width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>御神籤占卜</h1>
+  <p>請選擇占卜主題：</p>
+
+  <div class="theme-container" id="themeContainer">
+    <!-- 主題按鈕會由 JS 生成 -->
+  </div>
+
+  <div class="draw-container" id="drawContainer" style="display:none;">
+    <div class="omikuji" id="omikuji">搖一搖抽籤</div>
+    <div class="result" id="result"></div>
+    <button onclick="reset()">重新選主題</button>
+  </div>
+
+  <script>
+    const themes = [
+      "願望", "戀愛", "待人", "走人", "縁談", 
+      "商売", "失物", "住居", "旅立", "健康", 
+      "學問", "爭事", "抱人"
+    ];
+
+    const omikujiResults = [
+      {name:"大吉", en:"Da-Kichi", desc:"運勢極佳，但已到最高點，接下來會下降，需保持謙遜與努力維護現狀。"},
+      {name:"吉", en:"Kichi", desc:"僅次於大吉，運勢平穩上升。"},
+      {name:"中吉", en:"Chū-Kichi", desc:"運勢普通，可通過努力提升。"},
+      {name:"小吉", en:"Shō-Kichi", desc:"運氣普通，有小小的幸福，不宜過度追求。"},
+      {name:"末吉", en:"Sue-Kichi", desc:"運勢最差的吉籤，代表還有很大的上升空間。"},
+      {name:"凶", en:"Kyō", desc:"運勢不好，但應謹慎，反思改進可轉好。"},
+      {name:"大凶", en:"Dai-Kyō", desc:"運勢最差，但已是最低點，接下來必定會好轉，耐心等待時機即可。"}
+    ];
+
+    const themeContainer = document.getElementById('themeContainer');
+    const drawContainer = document.getElementById('drawContainer');
+    const omikuji = document.getElementById('omikuji');
+    const resultDiv = document.getElementById('result');
+
+    // 生成主題按鈕
+    themes.forEach(theme => {
+      const btn = document.createElement('div');
+      btn.classList.add('theme');
+      btn.textContent = theme;
+      btn.onclick = () => selectTheme(theme);
+      themeContainer.appendChild(btn);
+    });
+
+    function selectTheme(theme) {
+      themeContainer.style.display = 'none';
+      drawContainer.style.display = 'block';
+      omikuji.textContent = `${theme}：搖一搖抽籤`;
+      resultDiv.textContent = '';
+      omikuji.onclick = () => drawOmikuji();
+    }
+
+    function drawOmikuji() {
+      omikuji.classList.add('shake');
+      setTimeout(() => {
+        omikuji.classList.remove('shake');
+        const rand = Math.floor(Math.random() * omikujiResults.length);
+        const res = omikujiResults[rand];
+        omikuji.textContent = res.name;
+        resultDiv.textContent = res.desc;
+      }, 500);
+    }
+
+    function reset() {
+      drawContainer.style.display = 'none';
+      themeContainer.style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>
