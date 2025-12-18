@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>御神籤占卜</title>
+  <style>
+    body {
+      font-family: "Yu Gothic", "Microsoft JhengHei", sans-serif;
+      background-color: #fff8f0;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #333;
+    }
+    h1 {
+      color: #b71c1c;
+      margin-top: 20px;
+      font-weight: 700;
+    }
+    .theme-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .theme {
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 2px solid #b71c1c;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      font-weight: 600;
+    }
+    .theme:hover {
+      transform: scale(1.1);
+    }
+    .description {
+      font-size: 14px;
+      margin-top: 5px;
+      color: #5d4037;
+    }
+    .draw-container {
+      margin-top: 40px;
+      position: relative;
+    }
+    .omikuji-cup {
+      width: 100px;
+      margin: 0 auto;
+      cursor: pointer;
+    }
+    .omikuji {
+      width: 100px;
+      height: 50px;
+      line-height: 50px;
+      margin: 20px auto;
+      font-size: 22px;
+      font-weight: 700;
+      color: #b71c1c;
+      background-color: #fff;
+      border: 2px solid #b71c1c;
+      border-radius: 10px;
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+    }
+    @keyframes drop {
+      0% { top: -100px; opacity: 0; }
+      50% { opacity: 1; }
+      100% { top: 100px; opacity: 1; }
+    }
+    .result {
+      margin-top: 160px;
+      font-size: 18px;
+      padding: 15px;
+      border: 1px solid #b71c1c;
+      border-radius: 10px;
+      background-color: #fff3e0;
+      max-width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 600;
+    }
+    /* 神社背景元素 */
+    .shrine {
+      position: absolute;
+      width: 100%;
+      height: 200px;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      background: url('https://i.imgur.com/tfKcbzK.png') no-repeat center top; 
+      background-size: contain;
+    }
+    .sakura-left, .sakura-right {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      top: 50px;
+      z-index: 0;
+      background-size: contain;
+    }
+    .sakura-left { left: 10px; background-image: url('https://i.imgur.com/U3xvH6f.png'); }
+    .sakura-right { right: 10px; background-image: url('https://i.imgur.com/U3xvH6f.png'); }
+  </style>
+</head>
+<body>
+
+  <h1>御神籤占卜</h1>
+
+  <!-- 神社裝飾 -->
+  <div class="shrine"></div>
+  <div class="sakura-left"></div>
+  <div class="sakura-right"></div>
+
+  <div class="theme-container" id="themeContainer"></div>
+
+  <div class="draw-container" id="drawContainer" style="display:none;">
+    <img src="https://i.imgur.com/qlZK0rR.png" class="omikuji-cup" id="omikujiCup" alt="籤筒">
+    <div class="omikuji" id="omikuji"></div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const themes = [
+      {name:"願望", desc:"自己祈願的事情能否實現"},
+      {name:"戀愛", desc:"單相思或兩情相悅的戀愛前景"},
+      {name:"待人", desc:"影響自身命運的關鍵人物是否出現"},
+      {name:"走人", desc:"有人是否會離開你身邊"},
+      {name:"縁談", desc:"和婚姻有關的良緣是否出現"},
+      {name:"商売", desc:"關於工作的運勢"},
+      {name:"失物", desc:"正在找尋的物品或事情能否找到"},
+      {name:"住居", desc:"搬家或新家相關運氣"},
+      {name:"旅立", desc:"出行或旅行相關的運勢"},
+      {name:"健康", desc:"身體健康及痊癒時間"},
+      {name:"學問", desc:"考試與學習運勢"},
+      {name:"爭事", desc:"官司或比賽等競爭運勢"},
+      {name:"抱人", desc:"雇員相關的運勢"}
+    ];
+
+    const omikujiResults = [
+      {name:"大吉", en:"Da-Kichi", desc:"運勢極佳，但已到最高點，接下來會下降，需保持謙遜與努力維護現狀。"},
+      {name:"吉", en:"Kichi", desc:"僅次於大吉，運勢平穩上升。"},
+      {name:"中吉", en:"Chū-Kichi", desc:"運勢普通，可通過努力提升。"},
+      {name:"小吉", en:"Shō-Kichi", desc:"運氣普通，有小小的幸福，不宜過度追求。"},
+      {name:"末吉", en:"Sue-Kichi", desc:"運勢最差的吉籤，代表還有很大的上升空間。"},
+      {name:"凶", en:"Kyō", desc:"運勢不好，但應謹慎，反思改進可轉好。"},
+      {name:"大凶", en:"Dai-Kyō", desc:"運勢最差，但已是最低點，接下來必定會好轉，耐心等待時機即可。"}
+    ];
+
+    const themeContainer = document.getElementById('themeContainer');
+    const drawContainer = document.getElementById('drawContainer');
+    const omikujiCup = document.getElementById('omikujiCup');
+    const omikuji = document.getElementById('omikuji');
+    const resultDiv = document.getElementById('result');
+
+    // 生成主題按鈕
+    themes.forEach(theme => {
+      const btn = document.createElement('div');
+      btn.classList.add('theme');
+      btn.innerHTML = `<strong>${theme.name}</strong><div class="description">${theme.desc}</div>`;
+      btn.onclick = () => selectTheme(theme);
+      themeContainer.appendChild(btn);
+    });
+
+    function selectTheme(theme) {
+      themeContainer.style.display = 'none';
+      drawContainer.style.display = 'block';
+      omikuji.textContent = "";
+      resultDiv.textContent = "";
+      omikuji.style.top = "-100px";
+      omikuji.style.opacity = 0;
+
+      omikujiCup.onclick = () => drawOmikuji(theme.name);
+    }
+
+    function drawOmikuji(themeName) {
+      omikuji.style.animation = "drop 1s forwards";
+      setTimeout(() => {
+        const rand = Math.floor(Math.random() * omikujiResults.length);
+        const res = omikujiResults[rand];
+        omikuji.textContent = `${res.name}`;
+        resultDiv.innerHTML = `<strong>${themeName}</strong>：${res.desc}`;
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>
